@@ -21,6 +21,7 @@ from keyitem import KeyItem
 from entityclass import Entity
 from lookobjective import LookObjective
 from scarepigeonobjective import ScarePigeon
+from eatburgerobjective import EatBurger
 
 
 def setup(name, breed):
@@ -46,7 +47,6 @@ def setup(name, breed):
 
 
     # create entities
-    pigeon = Entity("pigeon", myPlayer, skittish=True)
 
 
     # create rooms
@@ -78,8 +78,8 @@ def setup(name, breed):
     # fill rooms
     hall.inventory = [staircase, banana, phone]
     landing.inventory = [staircase, bedroom, bathroom, hall]
-    garden.inventory = [chair, ball, table, toybox, pigeon]
-    kitchen.inventory = [chair, table, burger]
+    garden.inventory = [chair, ball, table, toybox]
+    kitchen.inventory = [chair, table]
     lounge.inventory = [chair, chair, chair, key]
     playroom.inventory = [playhouse, toybox]
     bedroom.inventory = [teddy, phone]
@@ -88,12 +88,14 @@ def setup(name, breed):
 
 
     # objectives
-    lookobjective = LookObjective(myPlayer, description= "Look around to find something to do.")
-    scarepigeon = ScarePigeon(myPlayer, description="I need to scare away the pigeon before it eats the food.")
+    look_objective = LookObjective(myPlayer, description= "Look around to find something to do.")
+    scare_pigeon = ScarePigeon(myPlayer, description="I need to scare away the pigeon before it eats the food.")
+    eat_burger = EatBurger(myPlayer, description="I'd really like that burger on the bench by that chair...")
 
 
     # objectives in rooms
-    garden.objective_list = [scarepigeon]
+    garden.objective_list = [scare_pigeon]
+    kitchen.objective_list = [eat_burger]
 
 
     # create commands
@@ -130,6 +132,6 @@ def setup(name, breed):
     myPlayer.action_list.append(aim)
     myPlayer.action_list.append(quit_game)
 
-    myPlayer.objective = lookobjective
+    myPlayer.objective = look_objective
 
     return myPlayer

@@ -21,6 +21,6 @@ while True:
         myPlayer.execute_action(myActionText[0], myActionText[1])
     if len(myActionText) > 2:
         myPlayer.execute_action(myActionText[0], myActionText[1], myActionText[2])
-    myPlayer.objective.finish(last_command = myActionText)
+    myPlayer.objective.finish(last_command=myActionText)
     if myPlayer.objective is None:
         myPlayer.objective = LookObjective(myPlayer)
