@@ -6,6 +6,9 @@ class GoAction(Action):
         if item is None:
             print("Where should I go?")
             return 0
+        if item.lower() == self.player.room.name:
+            print("I'm already here!")
+            return 0
         for r in self.player.room.connections:
             if item.lower() == r.name.lower():
                 if not self.player.on_furniture:

@@ -9,7 +9,7 @@ class UseAction(Action):
         for i in self.player.inventory:
             if item.lower() == i.name.lower():
                 try:
-                    i.use_item()
+                    i.use_item(second_item)
                     return 0
                 except AttributeError:
                     print("This can't be used.")
@@ -17,7 +17,7 @@ class UseAction(Action):
         for j in self.player.room.inventory:
             if item.lower() == j.name.lower():
                 try:
-                    j.use_item()
+                    j.use_item(second_item)
                     return 0
                 except AttributeError:
                     print("This can't be used.")

@@ -1,4 +1,5 @@
 from action import Action
+from helperfunctions import list_to_string
 
 
 class LookAction(Action):
@@ -12,18 +13,25 @@ class LookAction(Action):
                     rooms += ", the {0}".format(self.player.room.connections[i].name.lower())
                 rooms += " and {0}".format(self.player.room.connections[length-1].name.lower())
             print("There is access to {0}.".format(rooms))
-        if len(self.player.room.inventory) == 0:
+        #if len(self.player.room.inventory) == 0:
+        #    print("There's nothing here...")
+        #    return 0
+        if self.player.room.inventory:
+            #items = "A {0}".format(self.player.room.inventory[0].name.lower())
+            length_inv = len(self.player.room.inventory)
+            #if length_inv != 1:
+            #    for j in range(1, length_inv-1):
+            #        items += ", a {0}".format(self.player.room.inventory[j].name.lower())
+            #    items += " and a {0}".format(self.player.room.inventory[length_inv - 1].name.lower())
+            #if length_inv == 1:
+            #    print("{0} is in this room.".format(items))
+            #if length_inv > 1:
+            #    print("{0} are in this room.".format(items))
+            if length_inv == 1:
+                print("{0} is in this room.".format(self.player.room.inventory[0]))
+            else:
+                print("{0} are in this room.".format(list_to_string(self.player.room.inventory, True)))
+        else:
             print("There's nothing here...")
             return 0
-        if self.player.room.inventory:
-            items = "A {0}".format(self.player.room.inventory[0].name.lower())
-            length_inv = len(self.player.room.inventory)
-            if length_inv != 1:
-                for j in range(1, length_inv-1):
-                    items += ", a {0}".format(self.player.room.inventory[j].name.lower())
-                items += " and a {0}".format(self.player.room.inventory[length_inv - 1].name.lower())
-            if length_inv == 1:
-                print("{0} is in this room.".format(items))
-            if length_inv > 1:
-                print("{0} are in this room.".format(items))
 

@@ -5,15 +5,22 @@ from lookaction import LookAction
 from takeaction import TakeAction
 from dropaction import DropAction
 from inventoryaction import InventoryAction
+from objectivecheckaction import AimAction
 from helpaction import HelpAction
 from itemclass import Item
 from goaction import GoAction
 from useaction import UseAction
 from furnitureitem import FurnitureItem
 from offaction import OffAction
+from barkaction import BarkAction
 from stairsitem import StairsItem
 from throwableitem import ThrowableItem
 from quitaction import QuitAction
+from lockableitem import LockableItem
+from keyitem import KeyItem
+from entityclass import Entity
+from lookobjective import LookObjective
+from scarepigeonobjective import ScarePigeon
 
 
 def setup(name, breed):
@@ -34,12 +41,19 @@ def setup(name, breed):
     playhouse = Item("playhouse", 50, myPlayer)
     teddy = Item("teddy", 3, myPlayer)
     staircase = StairsItem("staircase", 1000, myPlayer)
+    toybox = LockableItem("toybox", 50, myPlayer, access_to=[teddy])
+    key = KeyItem("key", 2, myPlayer, access_to=[toybox])
+
+
+    # create entities
+    pigeon = Entity("pigeon", myPlayer, skittish=True)
+
 
     # create rooms
-    hall = Room("Hall")
-    landing = Room("Landing")
-    garden = Room("Garden", True)
-    kitchen = Room("Kitchen")
+    hall = Room("hall")
+    landing = Room("landing")
+    garden = Room("garden", True)
+    kitchen = Room("kitchen")
     lounge = Room("lounge")
     playroom = Room("playroom")
     bedroom = Room("bedroom")
@@ -59,17 +73,28 @@ def setup(name, breed):
 
     staircase.access_to = [landing, hall]
     myPlayer.room = garden
+    myPlayer.inventory.append(key)
 
     # fill rooms
     hall.inventory = [staircase, banana, phone]
     landing.inventory = [staircase, bedroom, bathroom, hall]
-    garden.inventory = [chair, ball, table]
+    garden.inventory = [chair, ball, table, toybox, pigeon]
     kitchen.inventory = [chair, table, burger]
-    lounge.inventory = [chair, chair, chair]
-    playroom.inventory = [playhouse, teddy]
+    lounge.inventory = [chair, chair, chair, key]
+    playroom.inventory = [playhouse, toybox]
     bedroom.inventory = [teddy, phone]
     bathroom.inventory = []
     basement.inventory = []
+
+
+    # objectives
+    lookobjective = LookObjective(myPlayer, description= "Look around to find something to do.")
+    scarepigeon = ScarePigeon(myPlayer, description="I need to scare away the pigeon before it eats the food.")
+
+
+    # objectives in rooms
+    garden.objective_list = [scarepigeon]
+
 
     # create commands
     # action_string = ["eat", "look", "take", "drop", "inventory", "help_list", "go", "use", "off"]
@@ -85,8 +110,11 @@ def setup(name, breed):
     help_list = HelpAction("Help", myPlayer)
     go = GoAction("Go", myPlayer)
     use = UseAction("Use", myPlayer)
+    bark = BarkAction("Bark", myPlayer)
     off = OffAction("Off", myPlayer)
+    aim = AimAction("Aim", myPlayer)
     quit_game = QuitAction("Quit", myPlayer)
+
 
     # add commands to myPlayer
     myPlayer.action_list.append(eat)
@@ -97,7 +125,11 @@ def setup(name, breed):
     myPlayer.action_list.append(help_list)
     myPlayer.action_list.append(go)
     myPlayer.action_list.append(use)
+    myPlayer.action_list.append(bark)
     myPlayer.action_list.append(off)
+    myPlayer.action_list.append(aim)
     myPlayer.action_list.append(quit_game)
+
+    myPlayer.objective = lookobjective
 
     return myPlayer
