@@ -18,10 +18,13 @@ from throwableitem import ThrowableItem
 from quitaction import QuitAction
 from lockableitem import LockableItem
 from keyitem import KeyItem
+from cleaningitem import CleaningItem
 from entityclass import Entity
 from lookobjective import LookObjective
 from scarepigeonobjective import ScarePigeon
 from eatburgerobjective import EatBurger
+from teddyobjective import TeddyObjective
+from spillobjective import SpillObjective
 
 
 def setup(name, breed):
@@ -37,13 +40,13 @@ def setup(name, breed):
     banana = Item("banana", 1, myPlayer, edible=True)
     ball = ThrowableItem("ball", 2, myPlayer)
     table = Item("table", 50, myPlayer)
-    burger = Item("burger", 2, myPlayer, edible=True, accessible=False)
-    chair = FurnitureItem("chair", 20, myPlayer, access_to=[burger])
+    chair = FurnitureItem("chair", 20, myPlayer)
     playhouse = Item("playhouse", 50, myPlayer)
     teddy = Item("teddy", 3, myPlayer)
     staircase = StairsItem("staircase", 1000, myPlayer)
     toybox = LockableItem("toybox", 50, myPlayer, access_to=[teddy])
     key = KeyItem("key", 2, myPlayer, access_to=[toybox])
+    tissue = CleaningItem("tissue", 1, myPlayer)
 
 
     # create entities
@@ -83,7 +86,7 @@ def setup(name, breed):
     lounge.inventory = [chair, chair, chair, key]
     playroom.inventory = [playhouse, toybox]
     bedroom.inventory = [teddy, phone]
-    bathroom.inventory = []
+    bathroom.inventory = [tissue]
     basement.inventory = []
 
 
@@ -91,11 +94,14 @@ def setup(name, breed):
     look_objective = LookObjective(myPlayer, description= "Look around to find something to do.")
     scare_pigeon = ScarePigeon(myPlayer, description="I need to scare away the pigeon before it eats the food.")
     eat_burger = EatBurger(myPlayer, description="I'd really like that burger on the bench by that chair...")
+    find_teddy = TeddyObjective(myPlayer, description="I want a cuddle. I wonder if there's anything in that toybox...")
+    spill_juice = SpillObjective(myPlayer, description="Oh no! Someone spilt some juice. There's got to be some way to clean it up.")
 
 
     # objectives in rooms
     garden.objective_list = [scare_pigeon]
-    kitchen.objective_list = [eat_burger]
+    kitchen.objective_list = [eat_burger, spill_juice]
+    playroom.objective_list = [find_teddy]
 
 
     # create commands

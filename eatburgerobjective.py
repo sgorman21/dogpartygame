@@ -12,6 +12,9 @@ class EatBurger(Objective):
             if not burger_here:
                 burger = Item("burger", 2, self.player, edible= True, accessible=False)
                 self.player.room.inventory.append(burger)
+                for i in self.player.room.inventory:
+                    if i.name is "chair":
+                        i.access_to.append(burger)
 
     def finish(self, last_command):
         if self.player.room.name is "kitchen":

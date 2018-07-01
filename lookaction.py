@@ -28,11 +28,9 @@ class LookAction(Action):
             #if length_inv > 1:
             #    print("{0} are in this room.".format(items))
             if length_inv == 1:
-                print("{0} is in this room.".format(self.player.room.inventory[0]))
+                print("A {0} is in this room.".format(self.player.room.inventory[0].name))
             else:
                 print("{0} are in this room.".format(list_to_string(self.player.room.inventory, True)))
-            for i in self.player.room.inventory:
-                print(i.name, i.accessible)
         else:
             print("There's nothing here...")
             return 0
