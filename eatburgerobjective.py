@@ -1,5 +1,6 @@
 from objectiveclass import Objective
 from itemclass import Item
+from helperfunctions import check_for_item
 
 
 class EatBurger(Objective):
@@ -18,7 +19,8 @@ class EatBurger(Objective):
 
     def finish(self, last_command):
         if self.player.room.name is "kitchen":
-            if last_command[0].lower() == 'eat' and last_command[1].lower() == 'burger':
+            if last_command[0].lower() == 'eat' and \
+                    last_command[1].lower() == 'burger' and not check_for_item("burger", self.player.room.inventory):
                 print("Mmm, that was nice. What next?")
                 self.complete = True
                 self.player.objective = None

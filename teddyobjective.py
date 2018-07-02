@@ -1,4 +1,5 @@
 from objectiveclass import Objective
+from helperfunctions import check_for_item
 
 
 class TeddyObjective(Objective):
@@ -6,7 +7,7 @@ class TeddyObjective(Objective):
         pass
 
     def finish(self, last_command):
-        if self.player.room.name is "playroom" and self.player.room.inventory[len(self.player.room.inventory)-1].name is "teddy":
+        if self.player.room.name is "playroom" and check_for_item("teddy", self.player.room.inventory):
             print("Yay! Found the teddy.")
             self.complete = True
             self.player.objective = None

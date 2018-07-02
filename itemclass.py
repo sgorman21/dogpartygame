@@ -7,5 +7,8 @@ class Item:
         self.accessible = accessible
         self.access_to = access_to
 
+    def __str__(self):
+        return self.name
+
     def use_item(self, second_item=None):
         print("This item can't be used.")

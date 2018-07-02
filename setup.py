@@ -85,7 +85,7 @@ def setup(name, breed):
     kitchen.inventory = [chair, table]
     lounge.inventory = [chair, chair, chair, key]
     playroom.inventory = [playhouse, toybox]
-    bedroom.inventory = [teddy, phone]
+    bedroom.inventory = [phone]
     bathroom.inventory = [tissue]
     basement.inventory = []
 

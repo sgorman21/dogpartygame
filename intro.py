@@ -21,10 +21,13 @@ def intro():
         return ["Me", "mutt"]
 
     name_chosen = False
+    name_choice = "Player"
     while not name_chosen:
         name_choice = input("Now what's your name?\n")
         answer = input("Is {0} correct?\n".format(name_choice.capitalize()))
         if answer in yeses:
             name_chosen = True
+            print("Great! You're in the garden. "
+                  "Look around to get started and type help to find out what you can do. Good luck!")
 
     return [name_choice, breed_choice]

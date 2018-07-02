@@ -1,4 +1,5 @@
 from action import Action
+from helperfunctions import check_for_item
 
 
 class DropAction(Action):
@@ -8,8 +9,7 @@ class DropAction(Action):
             self.player.inventory = []
             print("I've dropped everything.")
             return 0
-        for i in self.player.inventory:
-            if item.lower() == i.name:
+        if check_for_item(item.lower(), self.player.inventory):
                 self.player.inventory.remove(i)
                 self.player.room.inventory.append(i)
                 print("I've dropped the {0}.".format(i.name))

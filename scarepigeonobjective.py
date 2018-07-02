@@ -1,5 +1,6 @@
 from objectiveclass import Objective
 from entityclass import Entity
+from helperfunctions import check_for_item
 
 
 class ScarePigeon(Objective):
@@ -9,10 +10,10 @@ class ScarePigeon(Objective):
 
     def finish(self, last_command):
         if self.player.room.name is "garden":
-            for i in self.player.room.inventory:
-                if i.name == "pigeon":
-                    return 0
+            if check_for_item("pigeon", self.player.room.inventory):
+                return 0
             self.complete = True
             self.player.objective = None
             self.player.room.objective_list = self.player.room.objective_list[1:]
+            print("The food is safe! Good job me.")
 
