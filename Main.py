@@ -4,7 +4,6 @@ from intro import intro
 from lookobjective import LookObjective
 from helperfunctions import check_for_item
 
-
 # intro to create player
 responses = intro()
 

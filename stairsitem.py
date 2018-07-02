@@ -1,5 +1,5 @@
 from itemclass import Item
-from goaction import GoAction
+from Action.GoAction import GoAction
 
 
 class StairsItem(Item):
@@ -7,6 +7,6 @@ class StairsItem(Item):
         go = GoAction("go", self.player)
         for i in self.access_to:
             if not self.player.room.name.lower() == i.name.lower():
-                go.execute(item = i.name)
+                go.execute(destination= i.name)
                 return 0
         print("These stairs can't get me anywhere")
