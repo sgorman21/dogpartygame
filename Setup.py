@@ -1,29 +1,8 @@
-from playerclass import Player
-from room import Room
-from Action import EatAction
-from lookaction import LookAction
-from takeaction import TakeAction
-from Action.DropAction import DropAction
-from inventoryaction import InventoryAction
-from objectivecheckaction import AimAction
-from Action.HelpAction import HelpAction
-from itemclass import Item
-from Action.GoAction import GoAction
-from useaction import UseAction
-from furnitureitem import FurnitureItem
-from offaction import OffAction
-from Action.BarkAction import BarkAction
-from stairsitem import StairsItem
-from throwableitem import ThrowableItem
-from quitaction import QuitAction
-from lockableitem import LockableItem
-from keyitem import KeyItem
-from cleaningitem import CleaningItem
-from lookobjective import LookObjective
-from scarepigeonobjective import ScarePigeon
-from eatburgerobjective import EatBurger
-from teddyobjective import TeddyObjective
-from spillobjective import SpillObjective
+from Player import Player
+from Room import Room
+from Items import *
+from Objectives import *
+from Actions import *
 
 
 def setup(name, breed):
