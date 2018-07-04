@@ -18,20 +18,20 @@ class EatAction(Action):
             print("What should I eat?")
             return
 
-        for i in self.player.inventory:
-            if item == i.name:
-                if i.edible:
-                    self.player.inventory.remove(i)
-                    print("Yum yum yum, tasty {0}.".format(i.name))
+        for heldItem in self.player.inventory:
+            if item == heldItem.name:
+                if heldItem.edible:
+                    self.player.inventory.remove(heldItem)
+                    print("Yum yum yum, tasty {0}.".format(heldItem.name))
                 else:
                     print("I can't eat that!")
                 return
 
-        for j in self.player.room.inventory:
-            if item == j.name:
-                if j.edible and j.accessible:
-                    self.player.room.inventory.remove(j)
-                    print("Yum yum yum, tasty {0}.".format(j.name))
+        for room_item in self.player.room.inventory:
+            if item == room_item.name:
+                if room_item.edible and room_item.accessible:
+                    self.player.room.inventory.remove(room_item)
+                    print("Yum yum yum, tasty {0}.".format(room_item.name))
                 else:
                     print("That's not something I can do.")
                 return
@@ -46,8 +46,8 @@ class LookAction(Action):
             rooms = "the {0}".format(self.player.room.connections[0].name.lower())
             length = len(self.player.room.connections)
             if length != 1:
-                for i in range(1, length - 1):
-                    rooms += ", the {0}".format(self.player.room.connections[i].name.lower())
+                for counter in range(1, length - 1):
+                    rooms += ", the {0}".format(self.player.room.connections[counter].name.lower())
                 rooms += " and {0}".format(self.player.room.connections[length-1].name.lower())
             print("There is access to {0}.".format(list_to_string(self.player.room.connections, article=True, article_definite=True))) # testing
         if self.player.room.inventory:
@@ -67,17 +67,17 @@ class TakeAction(Action):
             print("I need to choose an item to take.")
             return 0
         weight_held = 0
-        for i in self.player.inventory:
-            weight_held += i.weight
-        for i in self.player.room.inventory:
-            if i.name.lower() == item.lower():
-                if i.accessible is False:
+        for item in self.player.inventory:
+            weight_held += item.weight
+        for item in self.player.room.inventory:
+            if item.name.lower() == item.lower():
+                if item.accessible is False:
                     print("I can't get to that.")
                     return 0
-                if weight_held + i.weight <= self.player.strength:
-                    self.player.room.inventory.remove(i)
-                    self.player.inventory.append(i)
-                    print("I now have a {0}.".format(i.name))
+                if weight_held + item.weight <= self.player.strength:
+                    self.player.room.inventory.remove(item)
+                    self.player.inventory.append(item)
+                    print("I now have a {0}.".format(item.name))
                 else:
                     print("I can't pick that up. It's too heavy.")
                 return 0
@@ -104,8 +104,8 @@ class DropAction(Action):
 
 class InventoryAction(Action):
     def execute(self, item=None):
-        for i in self.player.inventory:
-            print(i.name.capitalize())
+        for heldItem in self.player.inventory:
+            print(heldItem.name.capitalize())
 
 
 class HelpAction(Action):
@@ -142,12 +142,12 @@ class GoAction(Action):
             print("I'm already here!")
             return
 
-        for r in self.player.room.connections:
-            if destination.lower() == r.name.lower():
+        for connectedRoom in self.player.room.connections:
+            if destination.lower() == connectedRoom.name.lower():
                 if not self.player.on_furniture:
-                    self.player.room = r
+                    self.player.room = connectedRoom
                     self.player.room.player_present = False
-                    r.player_present = True
+                    connectedRoom.player_present = True
                     return
                 print("I'm on a {0}! I need to get off.".format(self.player.on_furniture.name))
 
@@ -159,18 +159,18 @@ class UseAction(Action):
         if item is None:
             print("What should I use?")
             return 0
-        for i in self.player.inventory:
-            if item.lower() == i.name.lower():
+        for heldItem in self.player.inventory:
+            if item.lower() == heldItem.name.lower():
                 try:
-                    i.use_item(second_item)
+                    heldItem.use_item(second_item)
                     return 0
                 except AttributeError:
                     print("This can't be used.")
                     return 0
-        for j in self.player.room.inventory:
-            if item.lower() == j.name.lower():
+        for roomItem in self.player.room.inventory:
+            if item.lower() == roomItem.name.lower():
                 try:
-                    j.use_item(second_item)
+                    roomItem.use_item(second_item)
                     return 0
                 except AttributeError:
                     print("This can't be used.")
@@ -185,10 +185,10 @@ class BarkAction(Action):
             return
 
         something_gone = False
-        for i in self.player.room.inventory:
-            if type(i) is Entity and i.skittish:
-                    self.player.room.inventory.remove(i)
-                    print("The {0} has gone!".format(i.name))
+        for heldItem in self.player.room.inventory:
+            if type(heldItem) is Entity and heldItem.skittish:
+                    self.player.room.inventory.remove(heldItem)
+                    print("The {0} has gone!".format(heldItem.name))
                     something_gone = True
         if not something_gone:
                 print("Nothing was scared of my fearsome bark.")
@@ -200,9 +200,9 @@ class OffAction(Action):
             print("I'm not on anything to get off.")
             return 0
         print("I'm off the {0} now.".format(self.player.on_furniture.name))
-        for i in self.player.on_furniture.access_to:
-            if i in self.player.room.inventory:
-                i.accessible = False
+        for itemToBeAccessed in self.player.on_furniture.access_to:
+            if itemToBeAccessed in self.player.room.inventory:
+                itemToBeAccessed.accessible = False
         self.player.on_furniture = None
 
 
