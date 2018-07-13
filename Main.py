@@ -1,4 +1,4 @@
-from Setup import setup
+from Setup import *
 from Restart import RestartAction
 from Intro import intro
 from Objectives import LookObjective

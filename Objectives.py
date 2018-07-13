@@ -1,13 +1,16 @@
 from Items import *
 from HelperFunctions import *
 from Entity import Entity
+from Room import Room
 
 
 class Objective:
-    def __init__(self, player, description="There isn't anything more to do in this room.", complete=False):
+    def __init__(self, player, description="There isn't anything more to do in this room.",
+                 complete=False, prerequisites=[]):
         self.player = player
         self.description = description
         self.complete = complete
+        self.prerequisites = prerequisites
 
     def start(self, last_command):
         self.complete = False
@@ -38,7 +41,7 @@ class EatBurger(Objective):
                 print("Mmm, that was nice. What next?")
                 self.complete = True
                 self.player.objective = None
-                self.player.room.objective_list = self.player.room.objective_list[1:]
+                self.player.completed_objectives.append("EatBurger")
 
 
 class LookObjective(Objective):
@@ -46,11 +49,29 @@ class LookObjective(Objective):
         pass
 
     def finish(self, last_command):
-        if last_command[0].lower() == 'look' and self.player.objective is not None:
-            if self.player.room.objective_list:
-                self.player.objective = self.player.room.objective_list[0]
-                self.player.objective.start(last_command)
-                print(self.player.objective.description)
+        if last_command[0].lower() == "look" and self.player.objective is not None:
+            for objective in self.player.room.objective_list:
+                prerequisites_met = True
+                for requirement in objective.prerequisites:
+                    if requirement not in self.player.completed_objectives:
+                        prerequisites_met = False
+                if prerequisites_met and not objective.complete:
+                    self.player.objective = objective
+                    self.player.objective.start(last_command)
+                    print(self.player.objective.description)
+                    return
+
+
+        #if last_command[0].lower() == 'look' and self.player.objective is not None:
+        #    for objective in self.player.room.objective_list:
+        #        if not objective.complete:
+        #            for requirement in objective.prerequisites:
+        #                if requirement not in self.player.completed_objectives:
+        #                    break
+        #                self.player.objective = objective
+        #                self.player.objective.start(last_command)
+        #                print(self.player.objective.description)
+        #                return
 
 
 class ScarePigeon(Objective):
@@ -64,8 +85,8 @@ class ScarePigeon(Objective):
                 return 0
             self.complete = True
             self.player.objective = None
-            self.player.room.objective_list = self.player.room.objective_list[1:]
             print("The food is safe! Good job me.")
+            self.player.completed_objectives.append("ScarePigeon")
 
 
 class SpillObjective(Objective):
@@ -83,7 +104,7 @@ class SpillObjective(Objective):
                 print("Nice and tidy.")
                 self.complete = True
                 self.player.objective = None
-                self.player.room.objective_list = self.player.room.objective_list[1:]
+                self.player.completed_objectives.append("SpillObjective")
 
 
 class TeddyObjective(Objective):
@@ -95,4 +116,39 @@ class TeddyObjective(Objective):
             print("Yay! Found the teddy.")
             self.complete = True
             self.player.objective = None
-            self.player.room.objective_list = self.player.room.objective_list[1:]
+            self.player.completed_objectives.append("TeddyObjective")
+
+
+class OpenBasement(Objective):
+    def start(self, last_command):
+            trapdoor = LockableItem("trapdoor", 100, self.player, accessible=True)
+            self.player.room.inventory.append(trapdoor)
+            latchkey = KeyItem("latchkey", 1, self.player, access_to=[trapdoor])
+            flowerpot = BreakableItem("flowerpot", 2, self.player, access_to=[latchkey])
+            self.player.room.inventory.append(flowerpot)
+
+        #if "SpillObjective" in self.player.completed_objectives:
+        #    trapdoor = LockableItem("trapdoor", 100, self.player, accessible=True)
+        #    self.player.room.inventory.append(trapdoor)
+        #    latchkey = KeyItem("latchkey", 1, self.player, access_to=[trapdoor])
+        #    flowerpot = BreakableItem("flowerpot", 2, self.player, access_to=[latchkey])
+        #   self.player.room.inventory.append(flowerpot)
+        #else:
+        #    self.player.objective = None
+
+    def finish(self, last_command):
+        for item in self.player.room.inventory:
+            try:
+                if not item.locked and item.name == "trapdoor":
+                    self.player.room.inventory.remove(item)
+                    backpack = CarrierItem("backpack", 2, self.player, capacity=6)
+                    basement = Room("basement", inventory=[backpack], connections=[self.player.room])
+                    self.player.room.connections.append(basement)
+                    trapdoor = StairsItem("trapdoor", 100, self.player, access_to=[basement])
+                    self.player.room.inventory.append(trapdoor)
+            except AttributeError:
+                pass
+        if self.player.room.name == "basement":
+            self.complete = True
+            self.player.objective = None
+            self.player.completed_objectives.append("OpenBasement")

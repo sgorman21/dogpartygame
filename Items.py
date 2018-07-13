@@ -63,13 +63,14 @@ class LockableItem(Item):
 
 class KeyItem(Item):
     def use_item(self, second_item=None):
-        for i in self.player.room.inventory:
-            if second_item.lower() == i.name:
-                second_item = i
-        if type(second_item) is LockableItem:
-            if second_item.locked and second_item.accessible and second_item in self.access_to:
-                second_item.locked = False
-                print("The {0} is open!".format(second_item.name))
+        unlock_item = None
+        for item in self.player.room.inventory:
+            if second_item.lower() == item.name:
+                unlock_item = item
+        if type(unlock_item) is LockableItem:
+            if unlock_item.locked and unlock_item.accessible and unlock_item in self.access_to:
+                unlock_item.locked = False
+                print("The {0} is open!".format(unlock_item.name))
             else:
                 print("I can't unlock that.")
         else:
@@ -81,9 +82,9 @@ class StairsItem(Item):
         go = GoAction("go", self.player)
         for i in self.access_to:
             if not self.player.room.name.lower() == i.name.lower():
-                go.execute(destination= i.name)
-                return 0
-        print("These stairs can't get me anywhere")
+                go.execute(wanted_destination= i.name)
+                return
+        print("These stairs can't get me anywhere.")
 
 
 class ThrowableItem(Item):
@@ -91,3 +92,21 @@ class ThrowableItem(Item):
         print("Look at it go!")
         self.player.inventory.remove(self)
         self.player.room.inventory.append(self)
+
+
+class CarrierItem(Item):
+    def __init__(self, *args, capacity=0, **kwargs):
+        super(CarrierItem, self).__init__(*args, **kwargs)
+        self.capacity = capacity
+
+    def use_item(self, second_item=None):
+        print("To use a storage item try using the store command")
+
+
+class BreakableItem(Item):
+    def use_item(self, second_item=None):
+        print("The {0} has broken and dropped {1}.".format(self.name, list_to_string(self.access_to)))
+        self.player.room.remove(self)
+        for hidden_item in self.access_to:
+            self.player.room.inventory.append(hidden_item)
+        return

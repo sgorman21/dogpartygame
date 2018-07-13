@@ -1,5 +1,7 @@
 from Entity import Entity
 from HelperFunctions import list_to_string
+from HelperFunctions import calculate_weight
+from Setup import *
 
 
 class Action(object):
@@ -40,8 +42,18 @@ class EatAction(Action):
 
 
 class LookAction(Action):
-    def execute(self, item = None):
-        print("I'm in the {0}.".format(self.player.room.name))
+    def execute(self, item=None):
+        #global connections_list
+        #print("I'm in the {0}.".format(self.player.room.name))
+        #current_connections = []
+        #for possible_connection in connections_list:
+        #    if self.player.room in possible_connection:
+        #        current_connections.append(possible_connection)
+        #if len(current_connections) == 0:
+        #    print("I can't go anywhere. I'm stuck in here...")
+        #else:
+        #    print("There is access to {0}".format(list_to_string(current_connections, article_definite=True)))
+
         if self.player.room.connections:
             rooms = "the {0}".format(self.player.room.connections[0].name.lower())
             length = len(self.player.room.connections)
@@ -66,18 +78,18 @@ class TakeAction(Action):
         if item is None:
             print("I need to choose an item to take.")
             return 0
-        weight_held = 0
-        for item in self.player.inventory:
-            weight_held += item.weight
-        for item in self.player.room.inventory:
-            if item.name.lower() == item.lower():
-                if item.accessible is False:
+        #weight_held = 0
+        #for item in self.player.inventory:
+        #    weight_held += item.weight
+        for held_item in self.player.room.inventory:
+            if held_item.name.lower() == item.lower():
+                if held_item.accessible is False:
                     print("I can't get to that.")
                     return 0
-                if weight_held + item.weight <= self.player.strength:
-                    self.player.room.inventory.remove(item)
-                    self.player.inventory.append(item)
-                    print("I now have a {0}.".format(item.name))
+                if calculate_weight(self.player.inventory) + held_item.weight <= self.player.strength:
+                    self.player.room.inventory.remove(held_item)
+                    self.player.inventory.append(held_item)
+                    print("I now have a {0}.".format(held_item.name))
                 else:
                     print("I can't pick that up. It's too heavy.")
                 return 0
@@ -99,6 +111,18 @@ class DropAction(Action):
                 self.player.room.inventory.append(inventoryItem)
                 print("I've dropped the {0}.".format(inventoryItem.name))
                 return
+        for inventoryItem in self.player.inventory:
+            try:
+                if inventoryItem.capacity != 0 and inventoryItem.accessto:
+                    for item_in_item in inventoryItem.accessto:
+                        if item.lower() == item_in_item.name:
+                            inventoryItem.accessto.remove(item_in_item)
+                            self.player.room.inventory.append(item_in_item)
+                            print("I've dropped the {0}.".format(item_in_item.name))
+                            return
+            except AttributeError:
+                pass
+                    
         print("I'm not holding one of those.")
 
 
@@ -106,6 +130,14 @@ class InventoryAction(Action):
     def execute(self, item=None):
         for heldItem in self.player.inventory:
             print(heldItem.name.capitalize())
+        for inventoryItem in self.player.inventory:
+            try:
+                if inventoryItem.capacity != 0 and inventoryItem.access_to:
+                    print("Inside the {0} I have {1}.".format(inventoryItem, list_to_string(inventoryItem.access_to)))
+            except AttributeError:
+                print("This has no storage.")
+        if not self.player.inventory:
+            print("I'm not holding anything.")
 
 
 class HelpAction(Action):
@@ -133,23 +165,43 @@ class HelpAction(Action):
 
 
 class GoAction(Action):
-    def execute(self, destination=None):
-        if destination is None:
+    def execute(self, wanted_destination=None):
+        if wanted_destination is None:
             print("Where should I go?")
             return
 
-        if destination.lower() == self.player.room.name:
+        #destination = None
+        #for room in room_list:
+        #    if room.name == wanted_destination:
+        #        destination = room
+        #    if destination is None:
+        #        print("There isn't anywhere called that.")
+        #        return
+
+        if wanted_destination.lower() == self.player.room.name:
             print("I'm already here!")
             return
+        # if destination.lower() == self.player.room.name:
+        #     print("I'm already here!")
+        #     return
 
+        #if check_connection(self.player.room, destination):
+        #    if not self.player.on_furniture:
+        #        self.player.room = destination
+        #        self.player.room.player_present = False
+        #        destination.player_present = True
+        #        return
+        #    print("I'm on a {0}! I need to get off.".format(self.player.on_furniture.name))
         for connectedRoom in self.player.room.connections:
-            if destination.lower() == connectedRoom.name.lower():
+            if wanted_destination.lower() == connectedRoom.name.lower():
                 if not self.player.on_furniture:
                     self.player.room = connectedRoom
                     self.player.room.player_present = False
                     connectedRoom.player_present = True
+                    print("I'm now in the {0}.".format(self.player.room.name))
                     return
                 print("I'm on a {0}! I need to get off.".format(self.player.on_furniture.name))
+                return
 
         print("I can't go there.")
 
@@ -214,3 +266,50 @@ class AimAction(Action):
 class QuitAction(Action):
     def execute(self, item=None):
         exit(0)
+
+
+class StoreAction(Action):
+    def execute(self, item=None):
+        carrier_present = False
+        is_item = False
+        for players_item in self.player.inventory:
+            if players_item.name == item.lower():
+                item = players_item
+                is_item = True
+                break
+        if not is_item:
+            print("I don't have one of those to store.")
+            return
+        for held_item in self.player.inventory:
+            try:
+                if calculate_weight(held_item.access_to) <= held_item.capacity - item.weight:
+                    held_item.access_to.append(item)
+                    self.player.inventory.remove(item)
+                    print("The {0} has been stored in {1}.".format(item.name, held_item.name))
+                    return
+                carrier_present = True
+            except AttributeError:
+                pass
+        if carrier_present:
+            print("There isn't enough room left to store this.")
+        else:
+            print("I don't have anywhere to store this.")
+            print("I don't have anywhere to store this.")
+
+
+class DestroyAction(Action):
+    def execute(self, item=None):
+        success = False
+        for held_item in self.player.inventory:
+            if item.lower() == held_item.name:
+                self.player.inventory.remove(held_item)
+                print("The {0} is broken to pieces! Mwhahaha.".format(held_item.name))
+                success = True
+                for hidden_item in held_item.access_to:
+                    self.player.room.inventory.append(hidden_item)
+                    if len(held_item.access_to) == 1:
+                        print("A {0} was in the {1}.".format(held_item.access_to[0], held_item.name))
+                    elif len(held_item.access_to) > 1:
+                        print("{0} were in the {1}.".format(list_to_string(held_item.access_to, capital=True)), held_item.name)
+        if not success:
+            print("I don't have one of those to destroy. Maybe I can find one...")

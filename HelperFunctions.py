@@ -29,3 +29,12 @@ def check_for_item(item_name, list_to_check):
 
     return False
 
+
+def calculate_weight(item_list):
+    weight = 0
+    for item in item_list:
+        try:
+            weight += item.weight
+        except Exception:
+            raise Exception("List might not be an item list.")
+    return weight
