@@ -1,9 +1,9 @@
 class Player:
-    def __init__(self, name, room, inventory=[], action_list=[], objective=None, strength=5,
+    def __init__(self, name, room, bag_contents=[], action_list=[], objective=None, strength=5,
                  on_furniture=None, breed=None, completed_objectives = []):
         self.name = name
         self.room = room
-        self.inventory = inventory
+        self.bag_contents = bag_contents
         self.action_list = action_list
         self.objective = objective
         self.strength = strength
@@ -17,8 +17,12 @@ class Player:
             if action.name.lower() == action_name.lower():
                 if item:
                     if second_item:
-                        action.execute(item, second_item)
-                        return
+                        try:
+                            action.execute(item, second_item)
+                            return
+                        except TypeError:
+                            action.execute(item)
+                            return
                     else:
                         action.execute(item)
                         return

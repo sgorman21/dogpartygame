@@ -49,6 +49,9 @@ class LookObjective(Objective):
         pass
 
     def finish(self, last_command):
+        if len(self.player.completed_objectives) == 5:
+            print("Congratulations {0}! You've completed all the objectives. Feel free to ".format(self.player.name),
+                  "continue running about.")
         if last_command[0].lower() == "look" and self.player.objective is not None:
             for objective in self.player.room.objective_list:
                 prerequisites_met = True
@@ -149,6 +152,7 @@ class OpenBasement(Objective):
             except AttributeError:
                 pass
         if self.player.room.name == "basement":
+            print("I made it!")
             self.complete = True
             self.player.objective = None
             self.player.completed_objectives.append("OpenBasement")

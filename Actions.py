@@ -20,21 +20,26 @@ class EatAction(Action):
             print("What should I eat?")
             return
 
-        for heldItem in self.player.inventory:
+        for heldItem in self.player.bag_contents:
             if item == heldItem.name:
-                if heldItem.edible:
-                    self.player.inventory.remove(heldItem)
-                    print("Yum yum yum, tasty {0}.".format(heldItem.name))
-                else:
+                try:
+                    if heldItem.edible:
+                        self.player.bag_contents.remove(heldItem)
+                        print("Yum yum yum, tasty {0}.".format(heldItem.name))
+                    else:
+                        print("I can't eat that!"
+                              "")
+                except AttributeError:
                     print("I can't eat that!")
                 return
 
         for room_item in self.player.room.inventory:
             if item == room_item.name:
-                if room_item.edible and room_item.accessible:
-                    self.player.room.inventory.remove(room_item)
-                    print("Yum yum yum, tasty {0}.".format(room_item.name))
-                else:
+                try:
+                    if room_item.edible and room_item.accessible:
+                        self.player.room.inventory.remove(room_item)
+                        print("Yum yum yum, tasty {0}.".format(room_item.name))
+                except AttributeError:
                     print("That's not something I can do.")
                 return
 
@@ -86,9 +91,9 @@ class TakeAction(Action):
                 if held_item.accessible is False:
                     print("I can't get to that.")
                     return 0
-                if calculate_weight(self.player.inventory) + held_item.weight <= self.player.strength:
+                if calculate_weight(self.player.bag_contents) + held_item.weight <= self.player.strength:
                     self.player.room.inventory.remove(held_item)
-                    self.player.inventory.append(held_item)
+                    self.player.bag_contents.append(held_item)
                     print("I now have a {0}.".format(held_item.name))
                 else:
                     print("I can't pick that up. It's too heavy.")
@@ -100,18 +105,18 @@ class TakeAction(Action):
 class DropAction(Action):
     def execute(self, item=None):
         if item is None:
-            self.player.room.inventory.extend(self.player.inventory)
-            self.player.inventory = []
+            self.player.room.inventory.extend(self.player.bag_contents)
+            self.player.bag_contents = []
             print("I've dropped everything.")
             return
 
-        for inventoryItem in self.player.inventory:
+        for inventoryItem in self.player.bag_contents:
             if item.lower() == inventoryItem.name:
-                self.player.inventory.remove(inventoryItem)
+                self.player.bag_contents.remove(inventoryItem)
                 self.player.room.inventory.append(inventoryItem)
                 print("I've dropped the {0}.".format(inventoryItem.name))
                 return
-        for inventoryItem in self.player.inventory:
+        for inventoryItem in self.player.bag_contents:
             try:
                 if inventoryItem.capacity != 0 and inventoryItem.accessto:
                     for item_in_item in inventoryItem.accessto:
@@ -128,15 +133,15 @@ class DropAction(Action):
 
 class InventoryAction(Action):
     def execute(self, item=None):
-        for heldItem in self.player.inventory:
+        for heldItem in self.player.bag_contents:
             print(heldItem.name.capitalize())
-        for inventoryItem in self.player.inventory:
+        for inventoryItem in self.player.bag_contents:
             try:
                 if inventoryItem.capacity != 0 and inventoryItem.access_to:
                     print("Inside the {0} I have {1}.".format(inventoryItem, list_to_string(inventoryItem.access_to)))
             except AttributeError:
                 print("This has no storage.")
-        if not self.player.inventory:
+        if not self.player.bag_contents:
             print("I'm not holding anything.")
 
 
@@ -211,7 +216,7 @@ class UseAction(Action):
         if item is None:
             print("What should I use?")
             return 0
-        for heldItem in self.player.inventory:
+        for heldItem in self.player.bag_contents:
             if item.lower() == heldItem.name.lower():
                 try:
                     heldItem.use_item(second_item)
@@ -272,19 +277,19 @@ class StoreAction(Action):
     def execute(self, item=None):
         carrier_present = False
         is_item = False
-        for players_item in self.player.inventory:
-            if players_item.name == item.lower():
+        for players_item in self.player.bag_contents:
+            if players_item.name == item.name.lower():
                 item = players_item
                 is_item = True
                 break
         if not is_item:
             print("I don't have one of those to store.")
             return
-        for held_item in self.player.inventory:
+        for held_item in self.player.bag_contents:
             try:
                 if calculate_weight(held_item.access_to) <= held_item.capacity - item.weight:
                     held_item.access_to.append(item)
-                    self.player.inventory.remove(item)
+                    self.player.bag_contents.remove(item)
                     print("The {0} has been stored in {1}.".format(item.name, held_item.name))
                     return
                 carrier_present = True
@@ -300,16 +305,20 @@ class StoreAction(Action):
 class DestroyAction(Action):
     def execute(self, item=None):
         success = False
-        for held_item in self.player.inventory:
+        held_item = None
+        for held_item in self.player.bag_contents:
             if item.lower() == held_item.name:
-                self.player.inventory.remove(held_item)
+                self.player.bag_contents.remove(held_item)
                 print("The {0} is broken to pieces! Mwhahaha.".format(held_item.name))
                 success = True
+                print(held_item.name)
+                for i in held_item.access_to:
+                    print(i.name)
                 for hidden_item in held_item.access_to:
                     self.player.room.inventory.append(hidden_item)
-                    if len(held_item.access_to) == 1:
-                        print("A {0} was in the {1}.".format(held_item.access_to[0], held_item.name))
-                    elif len(held_item.access_to) > 1:
-                        print("{0} were in the {1}.".format(list_to_string(held_item.access_to, capital=True)), held_item.name)
+                if len(held_item.access_to) == 1:
+                    print("A {0} was in the {1}.".format(held_item.access_to[0], held_item.name))
+                elif len(held_item.access_to) > 1:
+                    print("{0} were in the {1}.".format(list_to_string(held_item.access_to, capital=True)), held_item.name)
         if not success:
             print("I don't have one of those to destroy. Maybe I can find one...")
