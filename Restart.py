@@ -1,8 +1,8 @@
 import os
 import sys
 
-from action import Action
-from setup import setup
+from Actions import Action
+from Setup import setup
 
 
 class RestartAction(Action):
@@ -20,3 +20,4 @@ class RestartAction(Action):
             elif response in yeses:
                 os.execl(sys.executable, sys.executable, *sys.argv)
             print("Valid options, y or n")
+# TODO restart doesn't work but may be PyCharm

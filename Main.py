@@ -1,9 +1,7 @@
-from setup import setup
-from restartaction import RestartAction
-from intro import intro
-from lookobjective import LookObjective
-from helperfunctions import check_for_item
-
+from Setup import *
+from Restart import RestartAction
+from Intro import intro
+from Objectives import LookObjective
 
 # intro to create player
 responses = intro()
